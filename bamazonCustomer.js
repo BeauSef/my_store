@@ -19,84 +19,79 @@ var connection = mysql.createConnection({
 connection.connect(function (err) {
     // console.log("Connected as id: "+ connection.threadId);
     if (err) throw err;
- 
+
 
 
 });
 
 function load() {
 
-    connection.query("SELECT * FROM products", function(err, res){
+    connection.query("SELECT * FROM products", function (err, res) {
         if (err) throw err;
         console.table(res);
     })
 }
 
-function prompt(){
-        console.log(" ==========   WELCOME TO BAMAZON   ===========")
-        inquirer
-            .prompt([{
-                    type: 'input',
-                    name: 'item_id',
-                    message: 'Enter ID of product:',
-                    validate: function (value) {
-                        if (isNaN(value) == false) {
-                            return true
-                        } else {
-                            return false;
-                        }
-                    }
-
-                },
-                {
-                    type: 'input',
-                    name: 'quantity',
-                    message: 'How many do you need?',
-                    validate: function (value) {
-                        if (isNaN(value) == false) {
-                            return true
-                        } else {
-                            return false;
-                        }
-                    }
-                    
-                }
-                
-            ]).then(function (answer) {
-
-                    var idPicked = answer.item_id;
-                    var quantityPicked = answer.quantity -1;
-                    
-                
-                    if(quantityPicked < idPicked.stock_quantity){
-                            console.log("Your item has been ordered"  )
-                            connection.query( " Update SELECT from products")
-                    }else{
-                        console.log("Not enough on hands" + products)
-            }
-              
-                })
-            }
-        
+function prompt() {
     
+    inquirer
+        .prompt([{
+                type: 'input',
+                name: 'item_id',
+                message: 'Enter ID of product:',
+                validate: function (value) {
+                    if (isNaN(value) == false) {
+                        return true
+                    } else {
+                        return false;
+                    }
+                }
 
-                // wantMore();
-                // function wantMore(){
-                //     inquirer
-                //     .prompt([{
-                //             type: 'confirm',
-                //             name: 'reply',
-                //             message: 'Would you like to buy more?',
-                //     }]).then(function(answer){
-                //         if(answer.reply){
-                //             start();
-                //         } else {
-                //             console.log("Please come again!")
-                //         }
-                //     })
-                // }
-                load()
+            },
+            {
+                type: 'input',
+                name: 'quantity',
+                message: 'How many do you need?',
+                validate: function (value) {
+                    if (isNaN(value) == false) {
+                        return true
+                    } else {
+                        return false;
+                    }
+                }
 
-                prompt();
+            }
+
+        ]).then(function (answer) {
+            var quantity = stock_quantity
+            var idPicked = answer.item_id;
+            var quantityPicked = answer.quantity - 1;
+            connection.query("SELECT * FROM products WHERE?", [{
+                id: idPicked,
+                quantity: stock_quantity,
+            }], function (err, selected) {
+                if (err) throw err;
+                if (selected[0].stock_quantity - quantityPicked >= 0) {
+                    var total = quantityPicked * selected[0].price;
+                    console.log('Your item has been ordered (' + selected[0].product_name + ')!');
+                    console.log("On Hands: " + selected[0].stock_quantity + "Order Quantity: " + quantity);
+                    console.log("Price $ " + total);
+
+                    connection.query("UPDATE products SET stock_quantity = ? WHERE id=?", [selected[0].stock_quantity - quantityPicked, idPicked],
+                        function (err, onHands) {
+                            if (err) throw err;
+                        })}else {
+                            console.log("Not enough on hands" + products)
+                        }
+                    
+                    
+              
+            })
             
-            
+            })
+        
+        }
+        
+
+load();
+prompt();
