@@ -10,6 +10,8 @@ The customer will select the Item_id and the amount needed.
 when a customer selects an item it will show the amount they picked for there quantity and then show the price.
 This will also change the on hands
 
+![alt text](https://github.com/BeauSef/my_store/blob/master/assets/images/bamazon.png)
 
+![alt text](https://github.com/BeauSef/my_store/blob/master/assets/images/amount.png)
 
 
